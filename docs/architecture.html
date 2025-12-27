@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Too Many Cooks - Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+            --accent-high: #f85149;
+            --accent-high-bg: rgba(248, 81, 73, 0.15);
+            --accent-medium: #d29922;
+            --accent-medium-bg: rgba(210, 153, 34, 0.15);
+            --accent-low: #3fb950;
+            --accent-low-bg: rgba(63, 185, 80, 0.15);
+            --flow-color: #58a6ff;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-primary: #f6f8fa;
+                --bg-secondary: #ffffff;
+                --bg-card: #ffffff;
+                --text-primary: #24292f;
+                --text-secondary: #57606a;
+                --border-color: #d0d7de;
+                --accent-high: #cf222e;
+                --accent-high-bg: rgba(207, 34, 46, 0.1);
+                --accent-medium: #9a6700;
+                --accent-medium-bg: rgba(154, 103, 0, 0.1);
+                --accent-low: #1a7f37;
+                --accent-low-bg: rgba(26, 127, 55, 0.1);
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #58a6ff, #a371f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-high { background: var(--accent-high); }
+        .legend-medium { background: var(--accent-medium); }
+        .legend-low { background: var(--accent-low); }
+
+        /* Flow Section */
+        .flow-section {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .flow-title {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 1.1rem;
+        }
+
+        .flow-arrow {
+            color: var(--flow-color);
+            font-size: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .flow-item {
+            background: var(--bg-card);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+        }
+
+        .flow-item.user {
+            background: linear-gradient(135deg, #238636, #2ea043);
+            color: white;
+            border: none;
+        }
+
+        .flow-item.orchestrator {
+            background: linear-gradient(135deg, #8957e5, #a371f7);
+            color: white;
+            border: none;
+        }
+
+        .flow-item.subagents {
+            background: linear-gradient(135deg, #1f6feb, #58a6ff);
+            color: white;
+            border: none;
+        }
+
+        /* Architecture Grid */
+        .architecture {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--text-primary);
+        }
+
+        .grid {
+            display: grid;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* Orchestrator Card */
+        .orchestrator-card {
+            background: linear-gradient(135deg, var(--accent-high-bg), var(--bg-card));
+            border: 2px solid var(--accent-high);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .orchestrator-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-high), #d2a8ff);
+        }
+
+        .orchestrator-card .agent-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .orchestrator-card .agent-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .orchestrator-card .agent-role {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .orchestrator-card .model-badge {
+            display: inline-block;
+            background: var(--accent-high);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .orchestrator-card .capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .orchestrator-card .capability {
+            background: var(--bg-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .orchestrator-card .tier-badge {
+            display: inline-block;
+            background: var(--accent-high-bg);
+            color: var(--accent-high);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Subagents Grid */
+        .subagents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .agent-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .agent-card.tier-high::before { background: var(--accent-high); }
+        .agent-card.tier-medium::before { background: var(--accent-medium); }
+        .agent-card.tier-low::before { background: var(--accent-low); }
+
+        .agent-card.tier-high { border-color: var(--accent-high); }
+        .agent-card.tier-medium { border-color: var(--accent-medium); }
+        .agent-card.tier-low { border-color: var(--accent-low); }
+
+        .agent-card .agent-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .agent-card .agent-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .agent-card .agent-role {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .agent-card .model-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .agent-card.tier-high .model-badge {
+            background: var(--accent-high-bg);
+            color: var(--accent-high);
+        }
+
+        .agent-card.tier-medium .model-badge {
+            background: var(--accent-medium-bg);
+            color: var(--accent-medium);
+        }
+
+        .agent-card.tier-low .model-badge {
+            background: var(--accent-low-bg);
+            color: var(--accent-low);
+        }
+
+        .agent-card .capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .agent-card .capability {
+            background: var(--bg-secondary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .agent-card .tier-indicator {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .agent-card.tier-high .tier-indicator { background: var(--accent-high); }
+        .agent-card.tier-medium .tier-indicator { background: var(--accent-medium); }
+        .agent-card.tier-low .tier-indicator { background: var(--accent-low); }
+
+        /* Connection Lines */
+        .connections {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .connection-line {
+            width: 60px;
+            height: 2px;
+            background: var(--border-color);
+            position: relative;
+        }
+
+        .connection-line::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid var(--border-color);
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        /* Delegation Flow */
+        .delegation-flow {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 32px;
+            margin-top: 40px;
+            border: 1px solid var(--border-color);
+        }
+
+        .delegation-flow h2 {
+            font-size: 1.3rem;
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+        }
+
+        .flow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .flow-step {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .flow-step .step-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: var(--flow-color);
+            color: white;
+            border-radius: 50%;
+            line-height: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .flow-step .step-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .flow-step .step-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 60px;
+        }
+
+        footer a {
+            color: var(--flow-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .flow-diagram {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+                text-align: center;
+            }
+
+            .orchestrator-card {
+                padding: 24px;
+            }
+
+            .orchestrator-card .agent-name {
+                font-size: 1.5rem;
+            }
+
+            .subagents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .agent-card {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .agent-card:nth-child(1) { animation-delay: 0.1s; }
+        .agent-card:nth-child(2) { animation-delay: 0.2s; }
+        .agent-card:nth-child(3) { animation-delay: 0.3s; }
+        .agent-card:nth-child(4) { animation-delay: 0.4s; }
+        .agent-card:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Too Many Cooks 🧑‍🍳</h1>
+            <p class="subtitle">An OpenCode delegator pattern with multiple specialized agents</p>
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="legend-dot legend-high"></span>
+                    <span>High Cost (Planning & Coordination)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot legend-medium"></span>
+                    <span>Medium Cost (Implementation)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot legend-low"></span>
+                    <span>Low Cost (Search & Documentation)</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="flow-section">
+            <div class="flow-title">Request Flow</div>
+            <div class="flow-diagram">
+                <div class="flow-item user">👤 User</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-item orchestrator">🎯 Orchestrator</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-item subagents">⚡ Subagents</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-item orchestrator">🎯 Orchestrator</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-item user">👤 User</div>
+            </div>
+        </section>
+
+        <main class="architecture">
+            <h2 class="section-title">Agent Architecture</h2>
+
+            <div class="grid">
+                <!-- Orchestrator -->
+                <div class="orchestrator-card">
+                    <div class="agent-icon">🎯</div>
+                    <div class="agent-name">Orchestrator</div>
+                    <div class="agent-role">Planner & Coordinator</div>
+                    <div class="model-badge">claude-opus-4-5</div>
+                    <div class="capabilities">
+                        <span class="capability">read</span>
+                        <span class="capability">glob</span>
+                        <span class="capability">grep</span>
+                        <span class="capability">task (delegation)</span>
+                    </div>
+                    <span class="tier-badge">High Cost Tier</span>
+                </div>
+
+                <div class="connections">
+                    <span style="font-size: 2rem;">↓ ↓ ↓ ↓ ↓</span>
+                </div>
+
+                <!-- Subagents -->
+                <div class="subagents-grid">
+                    <div class="agent-card tier-medium">
+                        <div class="tier-indicator"></div>
+                        <div class="agent-icon">💻</div>
+                        <div class="agent-name">Coder</div>
+                        <div class="agent-role">Backend & Logic</div>
+                        <div class="model-badge">zai-coding-plan/glm-4.7</div>
+                        <div class="capabilities">
+                            <span class="capability">write</span>
+                            <span class="capability">edit</span>
+                            <span class="capability">bash</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card tier-medium">
+                        <div class="tier-indicator"></div>
+                        <div class="agent-icon">🎨</div>
+                        <div class="agent-name">Frontend</div>
+                        <div class="agent-role">UI & Components</div>
+                        <div class="model-badge">gemini-3-pro-high</div>
+                        <div class="capabilities">
+                            <span class="capability">write</span>
+                            <span class="capability">edit</span>
+                            <span class="capability">bash</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card tier-low">
+                        <div class="tier-indicator"></div>
+                        <div class="agent-icon">🔍</div>
+                        <div class="agent-name">Explorer</div>
+                        <div class="agent-role">Codebase Search</div>
+                        <div class="model-badge">opencode/grok-code</div>
+                        <div class="capabilities">
+                            <span class="capability">read</span>
+                            <span class="capability">glob</span>
+                            <span class="capability">grep</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card tier-low">
+                        <div class="tier-indicator"></div>
+                        <div class="agent-icon">✍️</div>
+                        <div class="agent-name">Writer</div>
+                        <div class="agent-role">Documentation</div>
+                        <div class="model-badge">gemini-flash-latest</div>
+                        <div class="capabilities">
+                            <span class="capability">write</span>
+                            <span class="capability">edit</span>
+                        </div>
+                    </div>
+
+                    <div class="agent-card tier-medium">
+                        <div class="tier-indicator"></div>
+                        <div class="agent-icon">👁️</div>
+                        <div class="agent-name">Reviewer</div>
+                        <div class="agent-role">Code Review</div>
+                        <div class="model-badge">gpt-4o</div>
+                        <div class="capabilities">
+                            <span class="capability">read</span>
+                            <span class="capability">glob</span>
+                            <span class="capability">grep</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="delegation-flow">
+                <h2>How Delegation Works</h2>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">User Request</div>
+                        <div class="step-desc">You provide a task to the primary agent</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Plan & Breakdown</div>
+                        <div class="step-desc">Orchestrator analyzes and creates subtasks</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Delegate</div>
+                        <div class="step-desc">Tasks sent to appropriate specialist agents</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Execute</div>
+                        <div class="step-desc">Subagents complete their specialized tasks</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-title">Coordinate & Report</div>
+                        <div class="step-desc">Orchestrator reviews results and reports back</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Too Many Cooks • <a href="https://github.com/yourusername/too-many-cooks">GitHub Repository</a></p>
+        </footer>
+    </div>
+</body>
+</html>
