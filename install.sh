@@ -73,7 +73,7 @@ main() {
     print_step "Installing agent files..."
     local agent_source_dir
     local agent_dest_dir
-    agent_source_dir="${SCRIPT_DIR}/.opencode/agent"
+    agent_source_dir="${SCRIPT_DIR}/agent"
     agent_dest_dir="${CONFIG_DIR}/agent"
 
     if [[ -d "${agent_source_dir}" ]]; then
