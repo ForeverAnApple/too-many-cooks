@@ -1,7 +1,7 @@
 ---
 description: Fast codebase exploration - find files, search patterns, understand structure
 mode: subagent
-model: opencode/grok-code
+model: zai-coding-plan/glm-4.7
 temperature: 0.1
 maxSteps: 15
 tools:

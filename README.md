@@ -15,6 +15,7 @@
 | **@frontend** | `gemini-3-pro-high` | **Pastry Chef**: UI components and styling. | 🟡 Med |
 | **@reviewer** | `gpt-4o` | **Sous Chef**: Code quality, security, and best practices. | 🟡 Med |
 | **@explorer** | `opencode/grok-code` | **Food Runner**: Codebase search and context gathering. | 🟢 Low |
+| **@research** | `zai-coding-plan/glm-4.7` | **Forager**: Web research, external docs, and API references. | 🟢 Low |
 | **@writer** | `gemini-flash-latest` | **Menu Writer**: Documentation and READMEs. | 🟢 Low |
 
 ---
@@ -57,6 +58,7 @@ The Orchestrator handles delegation automatically, but you can also call special
 *   **UI**: `@frontend Create a responsive Navbar component with Tailwind.`
 *   **Review**: `@reviewer Review the changes in src/auth/ for security risks.`
 *   **Search**: `@explorer Find all usages of the 'useAuth' hook.`
+*   **Research**: `@research Find the Stripe API docs for creating payment intents.`
 *   **Docs**: `@writer Document the new API endpoints in API.md.`
 
 ---

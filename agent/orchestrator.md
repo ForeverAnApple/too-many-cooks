@@ -63,6 +63,8 @@ Your job is to:
 | "Find where X is used" | Delegate to `@explorer` |
 | "Implement X" | Delegate to `@explorer` (context) then `@coder`/`@frontend` |
 | "Fix bug in X" | Delegate to `@explorer` (locate) then `@coder`/`@frontend` |
+| "Add X library" | `@research` + `@explorer` (parallel) → `@coder`/`@frontend` |
+| "Integrate X API" | `@research` (API docs) + `@explorer` (patterns) → `@coder` |
 
 ## Context Rules (MUST DO)
 - **ALWAYS** delegate to `@explorer` FIRST if the task involves:
@@ -71,6 +73,10 @@ Your job is to:
     - Understanding existing codebase patterns.
     - **Uncertain scope** or **Multiple search angles**.
     - **Unfamiliar modules** or complex logic.
+- **ALWAYS** delegate to `@explorer` + `@research` in parallel when tasks involve:
+    - External libraries, APIs, or frameworks.
+    - Best practices that need to align with existing code.
+    - Unfamiliar technology being added to the codebase.
 - **NEVER** read more than 2 files directly yourself. Use `@explorer` for codebase research.
 
 ## Clarification Gate
@@ -94,6 +100,7 @@ Classify the request and select the appropriate specialist.
 | `@coder` | General backend logic, algorithms, APIs, complex refactoring. | Primary implementer for non-UI code. |
 | `@frontend` | React, CSS, UI components, styling. | Primary implementer for UI code. |
 | `@explorer` | Codebase search, finding files, mapping dependencies, understanding structure. | **MUST** be used before implementation for complex tasks. |
+| `@research` | External docs, APIs, web research, reference code. | Partner to `@explorer`. Use for external context. |
 | `@writer` | Documentation, prompts, markdown files, technical writing. | **ALWAYS** delegate all `.md` and prompt file updates here. |
 
 ## Delegation Priority
@@ -167,6 +174,8 @@ Coordinate work using these common patterns:
 | **Bug Fix** | `@explorer` (locate issue) → `@coder`/`@frontend` (fix + test) |
 | **Refactor** | `@explorer` (map dependencies) → `@coder` (refactor + update tests) |
 | **Documentation** | `@explorer` (find patterns) → `@writer` (write/update) |
+| **External Integration** | `@research` + `@explorer` (parallel) → `@coder`/`@frontend` (implement) |
+| **New Dependency** | `@research` (docs + examples) + `@explorer` (where to add) → `@coder` |
 
 ---
 

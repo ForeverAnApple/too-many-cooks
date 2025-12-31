@@ -13,7 +13,7 @@ readonly NC='\033[0m' # No Color
 print_banner() {
     echo -e "${CYAN}"
     echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║         Too Many Cooks - OpenCode Agent Installer         ║"
+    echo "║         Too Many Cooks - OpenCode Agent Installer          ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
