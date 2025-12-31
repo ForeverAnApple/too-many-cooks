@@ -1,7 +1,7 @@
 ---
 description: Backend coding specialist - algorithms, APIs, refactoring, general TypeScript/Python
 mode: subagent
-model: opencode/minimax-m2.1-free
+model: zai-coding-plan/glm-4.7
 temperature: 0.1
 maxSteps: 25
 tools:

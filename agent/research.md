@@ -1,7 +1,7 @@
 ---
 description: Research specialist - web docs, external APIs, reference implementations
 mode: subagent
-model: zai-coding-plan/glm-4.7
+model: opencode/minimax-m2.1-free
 temperature: 0.2
 maxSteps: 20
 tools:
