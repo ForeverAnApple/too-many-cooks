@@ -3,7 +3,7 @@ description: Backend coding specialist - algorithms, APIs, refactoring, general 
 mode: subagent
 model: zai-coding-plan/glm-4.7
 temperature: 0.1
-maxSteps: 25
+maxSteps: 35
 tools:
   read: true
   glob: true
