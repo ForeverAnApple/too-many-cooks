@@ -1,7 +1,7 @@
 ---
 description: Fast codebase exploration - find files, search patterns, understand structure
 mode: subagent
-model: zai-coding-plan/glm-4.7
+model: openai/gpt-5.2
 temperature: 0.1
 maxSteps: 15
 tools:

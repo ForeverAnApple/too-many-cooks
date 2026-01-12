@@ -1,7 +1,7 @@
 ---
 description: Code reviewer - bugs, security, best practices, style, performance, test coverage
 mode: subagent
-model: zai-coding-plan/glm-4.7
+model: openai/gpt-5.2
 temperature: 0.2
 maxSteps: 15
 tools:
