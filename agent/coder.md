@@ -1,7 +1,7 @@
 ---
 description: Backend coding specialist - algorithms, APIs, refactoring, general TypeScript/Python
 mode: subagent
-model: zai-coding-plan/glm-4.7
+model: openai/gpt-5.2-codex
 temperature: 0.1
 maxSteps: 35
 tools:
@@ -36,6 +36,10 @@ A task is INCOMPLETE without verifiable evidence.
 1. **ALWAYS** run diagnostics (lint, type-check) on all changed files.
 2. **ALWAYS** execute project build/test commands if they exist.
 3. Include the actual output of all verification steps in your report.
+
+## Style guide
+
+If an AGENTS.md exists in the root dir, read it for style guide.
 
 ## Prohibitions (ABSOLUTE NEVER)
 
