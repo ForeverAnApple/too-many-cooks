@@ -7,7 +7,7 @@ tools:
   read: true
   glob: true
   grep: true
-  write: false
+  write: true
   edit: true
   bash: true
   task: true
