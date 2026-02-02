@@ -1,7 +1,7 @@
 ---
 description: Frontend specialist - React, Vue, CSS, UI components, styling, animations
 mode: subagent
-model: google/gemini-3-pro-preview
+model: anthropic/claude-opus-4-5
 temperature: 0.2
 maxSteps: 25
 tools:

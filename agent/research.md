@@ -1,7 +1,7 @@
 ---
 description: Research specialist - web docs, external APIs, reference implementations
 mode: subagent
-model: opencode/glm-4.7-free
+model: anthropic/claude-sonnet-4-5
 temperature: 0.2
 maxSteps: 20
 tools:
