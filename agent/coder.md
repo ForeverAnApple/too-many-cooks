@@ -1,7 +1,7 @@
 ---
 description: Backend coding specialist - algorithms, APIs, refactoring, general TypeScript/Python
 mode: subagent
-model: anthropic/claude-opus-4-5
+model: anthropic/claude-opus-4-6
 temperature: 0.1
 maxSteps: 25
 tools:

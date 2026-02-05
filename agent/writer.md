@@ -1,7 +1,7 @@
 ---
 description: Documentation writer - README, comments, API docs, technical writing
 mode: subagent
-model: anthropic/claude-opus-4-5
+model: anthropic/claude-opus-4-6
 temperature: 0.3
 maxSteps: 15
 tools:

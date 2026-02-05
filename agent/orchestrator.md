@@ -1,7 +1,7 @@
 ---
 description: Plans and delegates all work to specialized subagents. Never executes code directly.
 mode: primary
-model: anthropic/claude-opus-4-5
+model: anthropic/claude-opus-4-6
 temperature: 0.3
 tools:
   read: true

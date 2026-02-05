@@ -1,7 +1,7 @@
 ---
 description: Fast codebase exploration - find files, search patterns, understand structure
 mode: subagent
-model: anthropic/claude-opus-4-5
+model: anthropic/claude-opus-4-6
 temperature: 0.1
 maxSteps: 15
 tools:
