@@ -1,7 +1,7 @@
 ---
 description: Fast codebase exploration - find files, search patterns, understand structure
 mode: subagent
-model: anthropic/claude-opus-4-6
+model: openai/gpt-5.3-codex
 temperature: 0.1
 maxSteps: 15
 tools:
