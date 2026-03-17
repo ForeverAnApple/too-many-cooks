@@ -47,11 +47,17 @@ main() {
     print_step "Creating config directory..."
     mkdir -p "${CONFIG_DIR}"
     mkdir -p "${CONFIG_DIR}/agent"
+    mkdir -p "${CONFIG_DIR}/skills"
     print_success "Config directory ready: ${CONFIG_DIR}"
 
     # Step 2: Backup existing configuration
     print_step "Checking for existing configuration..."
-    if [[ -f "${CONFIG_DIR}/opencode.json" ]] || [[ -n "$(ls -A "${CONFIG_DIR}/agent" 2>/dev/null)" ]]; then
+    local has_existing=false
+    [[ -f "${CONFIG_DIR}/opencode.json" ]] && has_existing=true
+    [[ -n "$(ls -A "${CONFIG_DIR}/agent" 2>/dev/null)" ]] && has_existing=true
+    [[ -n "$(ls -A "${CONFIG_DIR}/skills" 2>/dev/null)" ]] && has_existing=true
+
+    if [[ "${has_existing}" == true ]]; then
         mkdir -p "${BACKUP_DIR}"
         print_warning "Backing up existing configuration to ${BACKUP_DIR}"
 
@@ -64,6 +70,12 @@ main() {
             mkdir -p "${BACKUP_DIR}/agent"
             cp -r "${CONFIG_DIR}/agent"/* "${BACKUP_DIR}/agent/"
             print_success "Backed up agent files"
+        fi
+
+        if [[ -n "$(ls -A "${CONFIG_DIR}/skills" 2>/dev/null)" ]]; then
+            mkdir -p "${BACKUP_DIR}/skills"
+            cp -r "${CONFIG_DIR}/skills"/* "${BACKUP_DIR}/skills/"
+            print_success "Backed up skill files"
         fi
     else
         print_success "No existing configuration found"
@@ -93,7 +105,34 @@ main() {
         exit 1
     fi
 
-    # Step 4: Merge or create opencode.json
+    # Step 4: Install skill files
+    print_step "Installing skill files..."
+    local skills_source_dir="${SCRIPT_DIR}/skills"
+    local skills_dest_dir="${CONFIG_DIR}/skills"
+
+    if [[ -d "${skills_source_dir}" ]]; then
+        local skill_count=0
+        for skill_dir in "${skills_source_dir}"/*/; do
+            if [[ -d "${skill_dir}" ]] && [[ -f "${skill_dir}/SKILL.md" ]]; then
+                local skill_name
+                skill_name=$(basename "${skill_dir}")
+                mkdir -p "${skills_dest_dir}/${skill_name}"
+                cp "${skill_dir}/SKILL.md" "${skills_dest_dir}/${skill_name}/SKILL.md"
+                echo -e "  ${CYAN}→${NC} ${skill_name}"
+                ((skill_count++)) || true
+            fi
+        done
+
+        if [[ ${skill_count} -eq 0 ]]; then
+            print_success "No skills found to install (add skills to ${skills_source_dir}/<name>/SKILL.md)"
+        else
+            print_success "Installed ${skill_count} skill(s)"
+        fi
+    else
+        print_warning "Skills source directory not found, skipping"
+    fi
+
+    # Step 5: Merge or create opencode.json
     print_step "Processing opencode.json..."
     local source_config="${SCRIPT_DIR}/opencode.json"
     local target_config="${CONFIG_DIR}/opencode.json"
@@ -126,13 +165,14 @@ main() {
         print_success "Created new opencode.json"
     fi
 
-    # Step 5: Summary
+    # Step 6: Summary
     echo ""
     print_banner
     echo -e "${GREEN}Installation complete!${NC}"
     echo ""
     echo -e "The following files have been installed:"
     echo -e "  • Agent files: ${CYAN}${agent_dest_dir}/*${NC}"
+    echo -e "  • Skill files: ${CYAN}${skills_dest_dir}/*${NC}"
     echo -e "  • Config file: ${CYAN}${target_config}${NC}"
     echo ""
     if [[ -d "${BACKUP_DIR}" ]]; then
